@@ -3,7 +3,6 @@ package test;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
 import com.turn.ttorrent.client.Client;
@@ -11,8 +10,11 @@ import com.turn.ttorrent.client.SharedTorrent;
 import com.turn.ttorrent.common.Torrent;
 
 public class TestTorrent {
+	final static Logger logger = Logger.getLogger(TestTorrent.class);
+
 	public static void main(String[] args) {
-		testClient();
+		logger.debug("This is debug message.");
+		// testClient();
 	}
 
 	public static void testClient() {

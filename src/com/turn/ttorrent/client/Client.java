@@ -15,22 +15,11 @@
  */
 package com.turn.ttorrent.client;
 
-import com.turn.ttorrent.client.announce.Announce;
-import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.client.announce.AnnounceResponseListener;
-import com.turn.ttorrent.client.peer.PeerActivityListener;
-import com.turn.ttorrent.client.peer.SharingPeer;
-import com.turn.ttorrent.common.Peer;
-import com.turn.ttorrent.common.Torrent;
-import com.turn.ttorrent.common.protocol.PeerMessage;
-import com.turn.ttorrent.common.protocol.TrackerMessage;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -47,6 +36,16 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.turn.ttorrent.client.announce.Announce;
+import com.turn.ttorrent.client.announce.AnnounceException;
+import com.turn.ttorrent.client.announce.AnnounceResponseListener;
+import com.turn.ttorrent.client.peer.PeerActivityListener;
+import com.turn.ttorrent.client.peer.SharingPeer;
+import com.turn.ttorrent.common.Peer;
+import com.turn.ttorrent.common.Torrent;
+import com.turn.ttorrent.common.protocol.PeerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 
 /**
  * A pure-java BitTorrent client.
@@ -438,12 +437,10 @@ public class Client extends Observable
 				this.connected.size(), this.peers.size(), String.format("%.2f", dl / 1024.0),
 				String.format("%.2f", ul / 1024.0), };
 		logger.info("{} {}/{} pieces ({}%) [{}/{}] with {}/{} peers at {}/{} kB/s.", info);
-		System.out.println(Arrays.asList(info));
 		for (SharingPeer peer : this.connected.values()) {
 			Piece piece = peer.getRequestedPiece();
 			String pieceString = piece != null ? "(downloading " + piece + ")" : "";
 			logger.debug("  | {} {}", peer, pieceString);
-			System.out.println(peer + "," + pieceString);
 		}
 
 	}

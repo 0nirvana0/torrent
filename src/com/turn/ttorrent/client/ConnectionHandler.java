@@ -41,7 +41,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Incoming peer connections service.
  *
@@ -76,8 +75,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConnectionHandler implements Runnable {
 
-	private static final Logger logger =
-		LoggerFactory.getLogger(ConnectionHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConnectionHandler.class);
 
 	public static final int PORT_RANGE_START = 49152;
 	public static final int PORT_RANGE_END = 65534;
@@ -112,18 +110,14 @@ public class ConnectionHandler implements Runnable {
 	 * @throws IOException When the service can't be started because no port in
 	 * the defined range is available or usable.
 	 */
-	ConnectionHandler(SharedTorrent torrent, String id, InetAddress address)
-		throws IOException {
+	ConnectionHandler(SharedTorrent torrent, String id, InetAddress address) throws IOException {
 		this.torrent = torrent;
 		this.id = id;
 
 		// Bind to the first available port in the range
 		// [PORT_RANGE_START; PORT_RANGE_END].
-		for (int port = ConnectionHandler.PORT_RANGE_START;
-				port <= ConnectionHandler.PORT_RANGE_END;
-				port++) {
-			InetSocketAddress tryAddress =
-				new InetSocketAddress(address, port);
+		for (int port = ConnectionHandler.PORT_RANGE_START; port <= ConnectionHandler.PORT_RANGE_END; port++) {
+			InetSocketAddress tryAddress = new InetSocketAddress(address, port);
 
 			try {
 				this.channel = ServerSocketChannel.open();
@@ -170,20 +164,15 @@ public class ConnectionHandler implements Runnable {
 	 */
 	public void start() {
 		if (this.channel == null) {
-			throw new IllegalStateException(
-				"Connection handler cannot be recycled!");
+			throw new IllegalStateException("Connection handler cannot be recycled!");
 		}
 
 		this.stop = false;
 
 		if (this.executor == null || this.executor.isShutdown()) {
-			this.executor = new ThreadPoolExecutor(
-				OUTBOUND_CONNECTIONS_POOL_SIZE,
-				OUTBOUND_CONNECTIONS_POOL_SIZE,
-				OUTBOUND_CONNECTIONS_THREAD_KEEP_ALIVE_SECS,
-				TimeUnit.SECONDS,
-				new LinkedBlockingQueue<Runnable>(),
-				new ConnectorThreadFactory());
+			this.executor = new ThreadPoolExecutor(OUTBOUND_CONNECTIONS_POOL_SIZE, OUTBOUND_CONNECTIONS_POOL_SIZE,
+					OUTBOUND_CONNECTIONS_THREAD_KEEP_ALIVE_SECS, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
+					new ConnectorThreadFactory());
 		}
 
 		if (this.thread == null || !this.thread.isAlive()) {
@@ -271,10 +260,8 @@ public class ConnectionHandler implements Runnable {
 	 */
 	private String socketRepr(SocketChannel channel) {
 		Socket s = channel.socket();
-		return String.format("%s:%d%s",
-			s.getInetAddress().getHostName(),
-			s.getPort(),
-			channel.isConnected() ? "+" : "-");
+		return String.format("%s:%d%s", s.getInetAddress().getHostName(), s.getPort(),
+				channel.isConnected() ? "+" : "-");
 	}
 
 	/**
@@ -294,26 +281,22 @@ public class ConnectionHandler implements Runnable {
 	 *
 	 * @param client The accepted client's socket channel.
 	 */
-	private void accept(SocketChannel client)
-		throws IOException, SocketTimeoutException {
+	private void accept(SocketChannel client) throws IOException, SocketTimeoutException {
 		try {
 			logger.debug("New incoming connection, waiting for handshake...");
 			Handshake hs = this.validateHandshake(client, null);
 			int sent = this.sendHandshake(client);
-			logger.trace("Replied to {} with handshake ({} bytes).",
-				this.socketRepr(client), sent);
+			logger.trace("Replied to {} with handshake ({} bytes).", this.socketRepr(client), sent);
 
 			// Go to non-blocking mode for peer interaction
 			client.configureBlocking(false);
-			client.socket().setSoTimeout(CLIENT_KEEP_ALIVE_MINUTES*60*1000);
+			client.socket().setSoTimeout(CLIENT_KEEP_ALIVE_MINUTES * 60 * 1000);
 			this.fireNewPeerConnection(client, hs.getPeerId());
 		} catch (ParseException pe) {
-			logger.info("Invalid handshake from {}: {}",
-				this.socketRepr(client), pe.getMessage());
+			logger.info("Invalid handshake from {}: {}", this.socketRepr(client), pe.getMessage());
 			IOUtils.closeQuietly(client);
 		} catch (IOException ioe) {
-			logger.warn("An error occured while reading an incoming " +
-					"handshake: {}", ioe.getMessage());
+			logger.warn("An error occured while reading an incoming " + "handshake: {}", ioe.getMessage());
 			if (client.isConnected()) {
 				IOUtils.closeQuietly(client);
 			}
@@ -325,9 +308,7 @@ public class ConnectionHandler implements Runnable {
 	 * handle new peer connections.
 	 */
 	public boolean isAlive() {
-		return this.executor != null &&
-			!this.executor.isShutdown() &&
-			!this.executor.isTerminated();
+		return this.executor != null && !this.executor.isShutdown() && !this.executor.isTerminated();
 	}
 
 	/**
@@ -342,8 +323,7 @@ public class ConnectionHandler implements Runnable {
 	 */
 	public void connect(SharingPeer peer) {
 		if (!this.isAlive()) {
-			throw new IllegalStateException(
-				"Connection handler is not accepting new peers at this time!");
+			throw new IllegalStateException("Connection handler is not accepting new peers at this time!");
 		}
 
 		this.executor.submit(new ConnectorTask(this, peer));
@@ -364,8 +344,7 @@ public class ConnectionHandler implements Runnable {
 	 * any peer ID is accepted (this is the case for incoming connections).
 	 * @return The validated handshake message object.
 	 */
-	private Handshake validateHandshake(SocketChannel channel, byte[] peerId)
-		throws IOException, ParseException {
+	private Handshake validateHandshake(SocketChannel channel, byte[] peerId) throws IOException, ParseException {
 		ByteBuffer len = ByteBuffer.allocate(1);
 		ByteBuffer data;
 
@@ -379,28 +358,24 @@ public class ConnectionHandler implements Runnable {
 		int pstrlen = len.get();
 
 		data = ByteBuffer.allocate(Handshake.BASE_HANDSHAKE_LENGTH + pstrlen);
-		data.put((byte)pstrlen);
+		data.put((byte) pstrlen);
 		int expected = data.remaining();
 		int read = channel.read(data);
 		if (read < expected) {
-			throw new IOException("Handshake data read underrun (" +
-				read + " < " + expected + " bytes)");
+			throw new IOException("Handshake data read underrun (" + read + " < " + expected + " bytes)");
 		}
 
 		// Parse and check the handshake
 		data.rewind();
 		Handshake hs = Handshake.parse(data);
 		if (!Arrays.equals(hs.getInfoHash(), this.torrent.getInfoHash())) {
-			throw new ParseException("Handshake for unknow torrent " +
-					Utils.bytesToHex(hs.getInfoHash()) +
-					" from " + this.socketRepr(channel) + ".", pstrlen + 9);
+			throw new ParseException("Handshake for unknow torrent " + Utils.bytesToHex(hs.getInfoHash()) + " from "
+					+ this.socketRepr(channel) + ".", pstrlen + 9);
 		}
 
 		if (peerId != null && !Arrays.equals(hs.getPeerId(), peerId)) {
-			throw new ParseException("Announced peer ID " +
-					Utils.bytesToHex(hs.getPeerId()) +
-					" did not match expected peer ID " +
-					Utils.bytesToHex(peerId) + ".", pstrlen + 29);
+			throw new ParseException("Announced peer ID " + Utils.bytesToHex(hs.getPeerId())
+					+ " did not match expected peer ID " + Utils.bytesToHex(peerId) + ".", pstrlen + 29);
 		}
 
 		return hs;
@@ -412,10 +387,8 @@ public class ConnectionHandler implements Runnable {
 	 * @param channel The socket channel to the remote peer.
 	 */
 	private int sendHandshake(SocketChannel channel) throws IOException {
-		return channel.write(
-			Handshake.craft(
-				this.torrent.getInfoHash(),
-				this.id.getBytes(Torrent.BYTE_ENCODING)).getData());
+		return channel
+				.write(Handshake.craft(this.torrent.getInfoHash(), this.id.getBytes(Torrent.BYTE_ENCODING)).getData());
 	}
 
 	/**
@@ -436,7 +409,6 @@ public class ConnectionHandler implements Runnable {
 		}
 	}
 
-
 	/**
 	 * A simple thread factory that returns appropriately named threads for
 	 * outbound connector threads.
@@ -454,7 +426,6 @@ public class ConnectionHandler implements Runnable {
 			return t;
 		}
 	}
-
 
 	/**
 	 * An outbound connection task.
@@ -481,8 +452,7 @@ public class ConnectionHandler implements Runnable {
 
 		@Override
 		public void run() {
-			InetSocketAddress address =
-				new InetSocketAddress(this.peer.getIp(), this.peer.getPort());
+			InetSocketAddress address = new InetSocketAddress(this.peer.getIp(), this.peer.getPort());
 			SocketChannel channel = null;
 
 			try {
@@ -497,11 +467,8 @@ public class ConnectionHandler implements Runnable {
 				int sent = this.handler.sendHandshake(channel);
 				logger.debug("Sent handshake ({} bytes), waiting for response...", sent);
 				Handshake hs = this.handler.validateHandshake(channel,
-					(this.peer.hasPeerId()
-						 ? this.peer.getPeerId().array()
-						 : null));
-				logger.info("Handshaked with {}, peer ID is {}.",
-					this.peer, Utils.bytesToHex(hs.getPeerId()));
+						(this.peer.hasPeerId() ? this.peer.getPeerId().array() : null));
+				logger.info("Handshaked with {}, peer ID is {}.", this.peer, Utils.bytesToHex(hs.getPeerId()));
 
 				// Go to non-blocking mode for peer interaction
 				channel.configureBlocking(false);
