@@ -21,7 +21,7 @@ public class TestTorrent {
 			// something
 			// else than localhost here).
 			InetAddress address = InetAddress.getLocalHost();
-			System.out.println(address);
+			//System.out.println(address);
 			SharedTorrent torrent = SharedTorrent.fromFile(new File("D:/test.torrent"), new File("D:/output"));
 			// First, instantiate the Client object.
 			Client client = new Client(address, torrent);
