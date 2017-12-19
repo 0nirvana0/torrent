@@ -13,8 +13,7 @@ public class TestTorrent {
 	final static Logger logger = Logger.getLogger(TestTorrent.class);
 
 	public static void main(String[] args) {
-		logger.debug("This is debug message.");
-		// testClient();
+		testClient();
 	}
 
 	public static void testClient() {
