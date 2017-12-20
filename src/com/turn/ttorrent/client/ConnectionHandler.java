@@ -489,6 +489,7 @@ public class ConnectionHandler implements Runnable {
 				channel.configureBlocking(false);
 				this.handler.fireNewPeerConnection(channel, hs.getPeerId());
 			} catch (Exception e) {
+ 
 				if (channel != null && channel.isConnected()) {
 					IOUtils.closeQuietly(channel);
 				}

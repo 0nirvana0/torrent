@@ -21,7 +21,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-
 /**
  * A basic BitTorrent peer.
  *
@@ -78,9 +77,7 @@ public class Peer {
 	 */
 	public Peer(InetSocketAddress address, ByteBuffer peerId) {
 		this.address = address;
-		this.hostId = String.format("%s:%d",
-			this.address.getAddress(),
-			this.address.getPort());
+		this.hostId = String.format("%s:%d", this.address.getAddress(), this.address.getPort());
 
 		this.setPeerId(peerId);
 	}
@@ -125,8 +122,7 @@ public class Peer {
 	 * Get the shortened hexadecimal-encoded peer ID.
 	 */
 	public String getShortHexPeerId() {
-		return String.format("..%s",
-			this.hexPeerId.substring(this.hexPeerId.length()-6).toUpperCase());
+		return String.format("..%s", this.hexPeerId.substring(this.hexPeerId.length() - 6).toUpperCase());
 	}
 
 	/**
@@ -168,12 +164,11 @@ public class Peer {
 	 * Returns a human-readable representation of this peer.
 	 */
 	public String toString() {
-		StringBuilder s = new StringBuilder("peer://")
-			.append(this.getIp()).append(":").append(this.getPort())
-			.append("/");
+		StringBuilder s = new StringBuilder("peer://").append(this.getIp()).append(":").append(this.getPort())
+				.append("/");
 
 		if (this.hasPeerId()) {
-			s.append(this.hexPeerId.substring(this.hexPeerId.length()-6));
+			s.append(this.hexPeerId.substring(this.hexPeerId.length() - 6));
 		} else {
 			s.append("?");
 		}
@@ -194,9 +189,6 @@ public class Peer {
 			return false;
 		}
 
-		return this.hostId.equals(other.hostId) &&
-			(this.hasPeerId()
-				 ? this.hexPeerId.equals(other.hexPeerId)
-				 : true);
+		return this.hostId.equals(other.hostId) && (this.hasPeerId() ? this.hexPeerId.equals(other.hexPeerId) : true);
 	}
 }

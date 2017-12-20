@@ -22,22 +22,20 @@ public class TestTorrent {
 			// something
 			// else than localhost here).
 			InetAddress address = InetAddress.getLocalHost();
-			System.out.println(address);
-			SharedTorrent torrent = SharedTorrent.fromFile(new File("D:/test.torrent"), new File("D:/output"));
+		
+			SharedTorrent torrent = SharedTorrent.fromFile(new File("data/test.torrent"), new File("D:/output"));
 			// First, instantiate the Client object.
 			Client client = new Client(address, torrent);
-			System.out.println(client.getPeerSpec());
-			System.out.println(torrent.getPieceLength());
-			
+
 			// You can optionally set download/upload rate limits
 			// in kB/second. Setting a limit to 0.0 disables rate
 			// limits.
-			client.setMaxDownloadRate(50.0);
-			client.setMaxUploadRate(50.0);
+			client.setMaxDownloadRate(1000.0);
+			client.setMaxUploadRate(1000.0);
 			// At this point, can you either call download() to download the
 			// torrent and
 			// stop immediately after...
-			client.download();
+			//client.download();
 
 			// Or call client.share(...) with a seed time in seconds:
 			// client.share(3600);

@@ -15,6 +15,7 @@
  */
 package com.turn.ttorrent.common.protocol.http;
 
+import com.sun.media.jfxmedia.logging.Logger;
 import com.turn.ttorrent.bcodec.BDecoder;
 import com.turn.ttorrent.bcodec.BEValue;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
@@ -22,7 +23,6 @@ import com.turn.ttorrent.common.protocol.TrackerMessage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
-
 
 /**
  * Base class for HTTP tracker messages.
@@ -35,16 +35,17 @@ public abstract class HTTPTrackerMessage extends TrackerMessage {
 		super(type, data);
 	}
 
-	public static HTTPTrackerMessage parse(ByteBuffer data)
-		throws IOException, MessageValidationException {
+	public static HTTPTrackerMessage parse(ByteBuffer data) throws IOException, MessageValidationException {
 		BEValue decoded = BDecoder.bdecode(data);
 		if (decoded == null) {
-			throw new MessageValidationException(
-				"Could not decode tracker message (not B-encoded?)!");
+			throw new MessageValidationException("Could not decode tracker message (not B-encoded?)!");
 		}
 
 		Map<String, BEValue> params = decoded.getMap();
-
+		// {peers= , interval= }
+		String dataStr = params.get("peers").getString();
+		int interval = params.get("interval").getInt();
+		System.out.println(dataStr + ",\n" + interval);
 		if (params.containsKey("info_hash")) {
 			return HTTPAnnounceRequestMessage.parse(data);
 		} else if (params.containsKey("peers")) {
