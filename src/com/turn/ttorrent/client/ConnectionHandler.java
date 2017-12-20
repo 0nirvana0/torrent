@@ -45,9 +45,8 @@ import org.slf4j.LoggerFactory;
  * Incoming peer connections service.
  *
  * <p>
- * Every BitTorrent client, BitTorrent being a peer-to-peer protocol, listens
- * on a port for incoming connections from other peers sharing the same
- * torrent.
+ * Every BitTorrent client, BitTorrent being a peer-to-peer protocol, listens on
+ * a port for incoming connections from other peers sharing the same torrent.
  * </p>
  *
  * <p>
@@ -58,9 +57,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * <p>
- * Outgoing connections to other peers are also made through this service,
- * which handles the handshake procedure with the remote peer. Regardless of
- * the direction of the connection, once this handshake is successful, all
+ * Outgoing connections to other peers are also made through this service, which
+ * handles the handshake procedure with the remote peer. Regardless of the
+ * direction of the connection, once this handshake is successful, all
  * {@link IncomingConnectionListener}s are notified and passed the connected
  * socket and the remote peer ID.
  * </p>
@@ -71,7 +70,9 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @author mpetazzoni
- * @see <a href="http://wiki.theory.org/BitTorrentSpecification#Handshake">BitTorrent handshake specification</a>
+ * @see <a href=
+ *      "http://wiki.theory.org/BitTorrentSpecification#Handshake">BitTorrent
+ *      handshake specification</a>
  */
 public class ConnectionHandler implements Runnable {
 
@@ -96,19 +97,23 @@ public class ConnectionHandler implements Runnable {
 	private boolean stop;
 
 	/**
-	 * Create and start a new listening service for out torrent, reporting
-	 * with our peer ID on the given address.
+	 * Create and start a new listening service for out torrent, reporting with
+	 * our peer ID on the given address.
 	 *
 	 * <p>
 	 * This binds to the first available port in the client port range
 	 * PORT_RANGE_START to PORT_RANGE_END.
 	 * </p>
 	 *
-	 * @param torrent The torrent shared by this client.
-	 * @param id This client's peer ID.
-	 * @param address The address to bind to.
-	 * @throws IOException When the service can't be started because no port in
-	 * the defined range is available or usable.
+	 * @param torrent
+	 *            The torrent shared by this client.
+	 * @param id
+	 *            This client's peer ID.
+	 * @param address
+	 *            The address to bind to.
+	 * @throws IOException
+	 *             When the service can't be started because no port in the
+	 *             defined range is available or usable.
 	 */
 	ConnectionHandler(SharedTorrent torrent, String id, InetAddress address) throws IOException {
 		this.torrent = torrent;
@@ -152,8 +157,8 @@ public class ConnectionHandler implements Runnable {
 	/**
 	 * Register a new incoming connection listener.
 	 *
-	 * @param listener The listener who wants to receive connection
-	 * notifications.
+	 * @param listener
+	 *            The listener who wants to receive connection notifications.
 	 */
 	public void register(IncomingConnectionListener listener) {
 		this.listeners.add(listener);
@@ -211,7 +216,8 @@ public class ConnectionHandler implements Runnable {
 	/**
 	 * Close this connection handler to release the port it is bound to.
 	 *
-	 * @throws IOException If the channel could not be closed.
+	 * @throws IOException
+	 *             If the channel could not be closed.
 	 */
 	public void close() throws IOException {
 		if (this.channel != null) {
@@ -254,9 +260,10 @@ public class ConnectionHandler implements Runnable {
 	/**
 	 * Return a human-readable representation of a connected socket channel.
 	 *
-	 * @param channel The socket channel to represent.
+	 * @param channel
+	 *            The socket channel to represent.
 	 * @return A textual representation (<em>host:port</em>) of the given
-	 * socket.
+	 *         socket.
 	 */
 	private String socketRepr(SocketChannel channel) {
 		Socket s = channel.socket();
@@ -279,7 +286,8 @@ public class ConnectionHandler implements Runnable {
 	 * the parsed peer ID.
 	 * </p>
 	 *
-	 * @param client The accepted client's socket channel.
+	 * @param client
+	 *            The accepted client's socket channel.
 	 */
 	private void accept(SocketChannel client) throws IOException, SocketTimeoutException {
 		try {
@@ -304,8 +312,8 @@ public class ConnectionHandler implements Runnable {
 	}
 
 	/**
-	 * Tells whether the connection handler is running and can be used to
-	 * handle new peer connections.
+	 * Tells whether the connection handler is running and can be used to handle
+	 * new peer connections.
 	 */
 	public boolean isAlive() {
 		return this.executor != null && !this.executor.isShutdown() && !this.executor.isTerminated();
@@ -319,7 +327,8 @@ public class ConnectionHandler implements Runnable {
 	 * executor to connect to the given peer.
 	 * </p>
 	 *
-	 * @param peer The peer to connect to.
+	 * @param peer
+	 *            The peer to connect to.
 	 */
 	public void connect(SharingPeer peer) {
 		if (!this.isAlive()) {
@@ -339,9 +348,12 @@ public class ConnectionHandler implements Runnable {
 	 * to see coming from the remote peer.
 	 * </p>
 	 *
-	 * @param channel The connected socket channel to the remote peer.
-	 * @param peerId The peer ID we expect in the handshake. If <em>null</em>,
-	 * any peer ID is accepted (this is the case for incoming connections).
+	 * @param channel
+	 *            The connected socket channel to the remote peer.
+	 * @param peerId
+	 *            The peer ID we expect in the handshake. If <em>null</em>, any
+	 *            peer ID is accepted (this is the case for incoming
+	 *            connections).
 	 * @return The validated handshake message object.
 	 */
 	private Handshake validateHandshake(SocketChannel channel, byte[] peerId) throws IOException, ParseException {
@@ -384,7 +396,8 @@ public class ConnectionHandler implements Runnable {
 	/**
 	 * Send our handshake message to the socket.
 	 *
-	 * @param channel The socket channel to the remote peer.
+	 * @param channel
+	 *            The socket channel to the remote peer.
 	 */
 	private int sendHandshake(SocketChannel channel) throws IOException {
 		return channel
@@ -394,8 +407,10 @@ public class ConnectionHandler implements Runnable {
 	/**
 	 * Trigger the new peer connection event on all registered listeners.
 	 *
-	 * @param channel The socket channel to the newly connected peer.
-	 * @param peerId The peer ID of the connected peer.
+	 * @param channel
+	 *            The socket channel to the newly connected peer.
+	 * @param peerId
+	 *            The peer ID of the connected peer.
 	 */
 	private void fireNewPeerConnection(SocketChannel channel, byte[] peerId) {
 		for (IncomingConnectionListener listener : this.listeners) {

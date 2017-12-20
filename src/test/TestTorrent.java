@@ -28,6 +28,7 @@ public class TestTorrent {
 			Client client = new Client(address, torrent);
 			System.out.println(client.getPeerSpec());
 			System.out.println(torrent.getPieceLength());
+			
 			// You can optionally set download/upload rate limits
 			// in kB/second. Setting a limit to 0.0 disables rate
 			// limits.
