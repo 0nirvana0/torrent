@@ -22,7 +22,7 @@ public class TestTorrent {
 			// something
 			// else than localhost here).
 			InetAddress address = InetAddress.getLocalHost();
-		
+
 			SharedTorrent torrent = SharedTorrent.fromFile(new File("data/test.torrent"), new File("D:/output"));
 			// First, instantiate the Client object.
 			Client client = new Client(address, torrent);
@@ -35,7 +35,7 @@ public class TestTorrent {
 			// At this point, can you either call download() to download the
 			// torrent and
 			// stop immediately after...
-			//client.download();
+			client.download();
 
 			// Or call client.share(...) with a seed time in seconds:
 			// client.share(3600);
