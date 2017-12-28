@@ -42,10 +42,6 @@ public abstract class HTTPTrackerMessage extends TrackerMessage {
 		}
 
 		Map<String, BEValue> params = decoded.getMap();
-		// {peers= , interval= }
-		String dataStr = params.get("peers").getString();
-		int interval = params.get("interval").getInt();
-		System.out.println(dataStr + ",\n" + interval);
 		if (params.containsKey("info_hash")) {
 			return HTTPAnnounceRequestMessage.parse(data);
 		} else if (params.containsKey("peers")) {
@@ -53,7 +49,6 @@ public abstract class HTTPTrackerMessage extends TrackerMessage {
 		} else if (params.containsKey("failure reason")) {
 			return HTTPTrackerErrorMessage.parse(data);
 		}
-
 		throw new MessageValidationException("Unknown HTTP tracker message!");
 	}
 }

@@ -368,7 +368,7 @@ public class Client extends Observable
 					this.resetPeerRates();
 				}
 			} catch (Exception e) {
-				logger.error("An exception occurred during the BitTorrent " + "client main loop execution!", e);
+				logger.error("An exception occurred during the BitTorrent " + "client  main loop execution!", e);
 			}
 
 			try {

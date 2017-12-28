@@ -87,6 +87,7 @@ public class HTTPTrackerClient extends TrackerClient {
 		try {
 			HTTPAnnounceRequestMessage request = this.buildAnnounceRequest(event);
 			target = request.buildAnnounceURL(this.tracker.toURL());
+			System.out.println(target);
 		} catch (MalformedURLException mue) {
 			throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
 		} catch (MessageValidationException mve) {
@@ -101,6 +102,7 @@ public class HTTPTrackerClient extends TrackerClient {
 		try {
 			conn = (HttpURLConnection) target.openConnection();
 			in = conn.getInputStream();
+
 		} catch (IOException ioe) {
 			if (conn != null) {
 				in = conn.getErrorStream();
@@ -121,6 +123,7 @@ public class HTTPTrackerClient extends TrackerClient {
 			// Parse and handle the response
 			HTTPTrackerMessage message = HTTPTrackerMessage.parse(ByteBuffer.wrap(baos.toByteArray()));
 			this.handleTrackerAnnounceResponse(message, inhibitEvents);
+			baos.close();
 		} catch (IOException ioe) {
 			throw new AnnounceException("Error reading tracker response!", ioe);
 		} catch (MessageValidationException mve) {
@@ -131,6 +134,7 @@ public class HTTPTrackerClient extends TrackerClient {
 			// leaks.
 			try {
 				in.close();
+
 			} catch (IOException ioe) {
 				logger.warn("Problem ensuring error stream closed!", ioe);
 			}

@@ -33,21 +33,19 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * The announce request message for the HTTP tracker protocol.
  *
  * <p>
  * This class represents the announce request message in the HTTP tracker
- * protocol. It doesn't add any specific fields compared to the generic
- * announce request message, but it provides the means to parse such
- * messages and craft them.
+ * protocol. It doesn't add any specific fields compared to the generic announce
+ * request message, but it provides the means to parse such messages and craft
+ * them.
  * </p>
  *
  * @author mpetazzoni
  */
-public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage
-	implements AnnounceRequestMessage {
+public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements AnnounceRequestMessage {
 
 	private final byte[] infoHash;
 	private final Peer peer;
@@ -59,10 +57,8 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage
 	private final RequestEvent event;
 	private final int numWant;
 
-	private HTTPAnnounceRequestMessage(ByteBuffer data,
-		byte[] infoHash, Peer peer, long uploaded, long downloaded,
-		long left, boolean compact, boolean noPeerId, RequestEvent event,
-		int numWant) {
+	private HTTPAnnounceRequestMessage(ByteBuffer data, byte[] infoHash, Peer peer, long uploaded, long downloaded,
+			long left, boolean compact, boolean noPeerId, RequestEvent event, int numWant) {
 		super(Type.ANNOUNCE_REQUEST, data);
 		this.infoHash = infoHash;
 		this.peer = peer;
@@ -143,31 +139,23 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage
 	/**
 	 * Build the announce request URL for the given tracker announce URL.
 	 *
-	 * @param trackerAnnounceURL The tracker's announce URL.
+	 * @param trackerAnnounceURL
+	 *            The tracker's announce URL.
 	 * @return The URL object representing the announce request URL.
 	 */
-	public URL buildAnnounceURL(URL trackerAnnounceURL)
-		throws UnsupportedEncodingException, MalformedURLException {
+	public URL buildAnnounceURL(URL trackerAnnounceURL) throws UnsupportedEncodingException, MalformedURLException {
 		String base = trackerAnnounceURL.toString();
 		StringBuilder url = new StringBuilder(base);
-		url.append(base.contains("?") ? "&" : "?")
-			.append("info_hash=")
-			.append(URLEncoder.encode(
-				new String(this.getInfoHash(), Torrent.BYTE_ENCODING),
-				Torrent.BYTE_ENCODING))
-			.append("&peer_id=")
-			.append(URLEncoder.encode(
-				new String(this.getPeerId(), Torrent.BYTE_ENCODING),
-				Torrent.BYTE_ENCODING))
-			.append("&port=").append(this.getPort())
-			.append("&uploaded=").append(this.getUploaded())
-			.append("&downloaded=").append(this.getDownloaded())
-			.append("&left=").append(this.getLeft())
-			.append("&compact=").append(this.getCompact() ? 1 : 0)
-			.append("&no_peer_id=").append(this.getNoPeerIds() ? 1 : 0);
+		url.append(base.contains("?") ? "&" : "?").append("info_hash=")
+				.append(URLEncoder.encode(new String(this.getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
+				.append("&peer_id=")
+				.append(URLEncoder.encode(new String(this.getPeerId(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
+				.append("&port=").append(this.getPort()).append("&uploaded=").append(this.getUploaded())
+				.append("&downloaded=").append(this.getDownloaded()).append("&left=").append(this.getLeft())
+				.append("&compact=").append(this.getCompact() ? 1 : 0).append("&no_peer_id=")
+				.append(this.getNoPeerIds() ? 1 : 0);
 
-		if (this.getEvent() != null &&
-			!RequestEvent.NONE.equals(this.getEvent())) {
+		if (this.getEvent() != null && !RequestEvent.NONE.equals(this.getEvent())) {
 			url.append("&event=").append(this.getEvent().getEventName());
 		}
 
@@ -178,29 +166,24 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage
 		return new URL(url.toString());
 	}
 
-	public static HTTPAnnounceRequestMessage parse(ByteBuffer data)
-		throws IOException, MessageValidationException {
+	public static HTTPAnnounceRequestMessage parse(ByteBuffer data) throws IOException, MessageValidationException {
 		BEValue decoded = BDecoder.bdecode(data);
 		if (decoded == null) {
-			throw new MessageValidationException(
-				"Could not decode tracker message (not B-encoded?)!");
+			throw new MessageValidationException("Could not decode tracker message (not B-encoded?)!");
 		}
 
 		Map<String, BEValue> params = decoded.getMap();
 
 		if (!params.containsKey("info_hash")) {
-			throw new MessageValidationException(
-				ErrorMessage.FailureReason.MISSING_HASH.getMessage());
+			throw new MessageValidationException(ErrorMessage.FailureReason.MISSING_HASH.getMessage());
 		}
 
 		if (!params.containsKey("peer_id")) {
-			throw new MessageValidationException(
-				ErrorMessage.FailureReason.MISSING_PEER_ID.getMessage());
+			throw new MessageValidationException(ErrorMessage.FailureReason.MISSING_PEER_ID.getMessage());
 		}
 
 		if (!params.containsKey("port")) {
-			throw new MessageValidationException(
-				ErrorMessage.FailureReason.MISSING_PORT.getMessage());
+			throw new MessageValidationException(ErrorMessage.FailureReason.MISSING_PORT.getMessage());
 		}
 
 		try {
@@ -249,26 +232,19 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage
 
 			RequestEvent event = RequestEvent.NONE;
 			if (params.containsKey("event")) {
-				event = RequestEvent.getByName(params.get("event")
-					.getString(Torrent.BYTE_ENCODING));
+				event = RequestEvent.getByName(params.get("event").getString(Torrent.BYTE_ENCODING));
 			}
 
-			return new HTTPAnnounceRequestMessage(data, infoHash,
-				new Peer(ip, port, ByteBuffer.wrap(peerId)),
-				uploaded, downloaded, left, compact, noPeerId,
-				event, numWant);
+			return new HTTPAnnounceRequestMessage(data, infoHash, new Peer(ip, port, ByteBuffer.wrap(peerId)), uploaded,
+					downloaded, left, compact, noPeerId, event, numWant);
 		} catch (InvalidBEncodingException ibee) {
-			throw new MessageValidationException(
-				"Invalid HTTP tracker request!", ibee);
+			throw new MessageValidationException("Invalid HTTP tracker request!", ibee);
 		}
 	}
 
-	public static HTTPAnnounceRequestMessage craft(byte[] infoHash,
-		byte[] peerId, int port, long uploaded, long downloaded, long left,
-		boolean compact, boolean noPeerId, RequestEvent event,
-		String ip, int numWant)
-		throws IOException, MessageValidationException,
-			UnsupportedEncodingException {
+	public static HTTPAnnounceRequestMessage craft(byte[] infoHash, byte[] peerId, int port, long uploaded,
+			long downloaded, long left, boolean compact, boolean noPeerId, RequestEvent event, String ip, int numWant)
+			throws IOException, MessageValidationException, UnsupportedEncodingException {
 		Map<String, BEValue> params = new HashMap<String, BEValue>();
 		params.put("info_hash", new BEValue(infoHash));
 		params.put("peer_id", new BEValue(peerId));
@@ -280,22 +256,19 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage
 		params.put("no_peer_id", new BEValue(noPeerId ? 1 : 0));
 
 		if (event != null) {
-			params.put("event",
-				new BEValue(event.getEventName(), Torrent.BYTE_ENCODING));
+			params.put("event", new BEValue(event.getEventName(), Torrent.BYTE_ENCODING));
 		}
 
 		if (ip != null) {
-			params.put("ip",
-				new BEValue(ip, Torrent.BYTE_ENCODING));
+			params.put("ip", new BEValue(ip, Torrent.BYTE_ENCODING));
 		}
 
 		if (numWant != AnnounceRequestMessage.DEFAULT_NUM_WANT) {
 			params.put("numwant", new BEValue(numWant));
 		}
 
-		return new HTTPAnnounceRequestMessage(
-			BEncoder.bencode(params),
-			infoHash, new Peer(ip, port, ByteBuffer.wrap(peerId)),
-			uploaded, downloaded, left, compact, noPeerId, event, numWant);
+		return new HTTPAnnounceRequestMessage(BEncoder.bencode(params), infoHash,
+				new Peer(ip, port, ByteBuffer.wrap(peerId)), uploaded, downloaded, left, compact, noPeerId, event,
+				numWant);
 	}
 }

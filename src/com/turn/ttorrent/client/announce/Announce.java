@@ -53,8 +53,10 @@ public class Announce implements Runnable {
 
 	private final Peer peer;
 
-	/** The tiers of tracker clients matching the tracker URIs defined in the
-	 * torrent. */
+	/**
+	 * The tiers of tracker clients matching the tracker URIs defined in the
+	 * torrent.
+	 */
 	private final List<List<TrackerClient>> clients;
 	private final Set<TrackerClient> allClients;
 
@@ -72,8 +74,10 @@ public class Announce implements Runnable {
 	/**
 	 * Initialize the base announce class members for the announcer.
 	 *
-	 * @param torrent The torrent we're announcing about.
-	 * @param peer Our peer specification.
+	 * @param torrent
+	 *            The torrent we're announcing about.
+	 * @param peer
+	 *            Our peer specification.
 	 */
 	public Announce(SharedTorrent torrent, Peer peer) {
 		this.peer = peer;
@@ -81,8 +85,8 @@ public class Announce implements Runnable {
 		this.allClients = new HashSet<TrackerClient>();
 
 		/**
-		 * Build the tiered structure of tracker clients mapping to the
-		 * trackers of the torrent.
+		 * Build the tiered structure of tracker clients mapping to the trackers
+		 * of the torrent.
 		 */
 		for (List<URI> tier : torrent.getAnnounceList()) {
 			ArrayList<TrackerClient> tierClients = new ArrayList<TrackerClient>();
@@ -117,7 +121,8 @@ public class Announce implements Runnable {
 	/**
 	 * Register a new announce response listener.
 	 *
-	 * @param listener The listener to register on this announcer events.
+	 * @param listener
+	 *            The listener to register on this announcer events.
 	 */
 	public void register(AnnounceResponseListener listener) {
 		for (TrackerClient client : this.allClients) {
@@ -210,10 +215,12 @@ public class Announce implements Runnable {
 		AnnounceRequestMessage.RequestEvent event = AnnounceRequestMessage.RequestEvent.STARTED;
 
 		while (!this.stop) {
+
 			try {
 				this.getCurrentTrackerClient().announce(event, false);
 				this.promoteCurrentTrackerClient();
 				event = AnnounceRequestMessage.RequestEvent.NONE;
+
 			} catch (AnnounceException ae) {
 				logger.warn(ae.getMessage());
 
@@ -254,11 +261,16 @@ public class Announce implements Runnable {
 	/**
 	 * Create a {@link TrackerClient} annoucing to the given tracker address.
 	 *
-	 * @param torrent The torrent the tracker client will be announcing for.
-	 * @param peer The peer the tracker client will announce on behalf of.
-	 * @param tracker The tracker address as a {@link URI}.
-	 * @throws UnknownHostException If the tracker address is invalid.
-	 * @throws UnknownServiceException If the tracker protocol is not supported.
+	 * @param torrent
+	 *            The torrent the tracker client will be announcing for.
+	 * @param peer
+	 *            The peer the tracker client will announce on behalf of.
+	 * @param tracker
+	 *            The tracker address as a {@link URI}.
+	 * @throws UnknownHostException
+	 *             If the tracker address is invalid.
+	 * @throws UnknownServiceException
+	 *             If the tracker protocol is not supported.
 	 */
 	private TrackerClient createTrackerClient(SharedTorrent torrent, Peer peer, URI tracker)
 			throws UnknownHostException, UnknownServiceException {
@@ -275,8 +287,9 @@ public class Announce implements Runnable {
 
 	/**
 	 * Returns the current tracker client used for announces.
-	 * @throws AnnounceException When the current announce tier isn't defined
-	 *	in the torrent.
+	 * 
+	 * @throws AnnounceException
+	 *             When the current announce tier isn't defined in the torrent.
 	 */
 	public TrackerClient getCurrentTrackerClient() throws AnnounceException {
 		if ((this.currentTier >= this.clients.size())
@@ -351,8 +364,9 @@ public class Announce implements Runnable {
 	/**
 	 * Stop the announce thread.
 	 *
-	 * @param hard Whether to force stop the announce thread or not, i.e. not
-	 * send the final 'stopped' announce request or not.
+	 * @param hard
+	 *            Whether to force stop the announce thread or not, i.e. not
+	 *            send the final 'stopped' announce request or not.
 	 */
 	private void stop(boolean hard) {
 		this.forceStop = hard;
